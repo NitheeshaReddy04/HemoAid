@@ -590,6 +590,316 @@ Login:
       "vite": "6.3.5"
     }
   }
+
+  ///////////////////
+  ///patient details code
+  import { useState } from "react";
+import { Droplet, MapPin, Phone, Hospital, User, AlertCircle, FileText, X } from "lucide-react";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Button } from "./ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { toast } from "sonner";
+
+interface PatientFormData {
+  patientName: string;
+  bloodGroup: string;
+  requiredUnits: string;
+  urgencyLevel: string;
+  hospitalName: string;
+  location: string;
+  contactNumber: string;
+}
+
+export function PatientDetailsForm() {
+  const [formData, setFormData] = useState<PatientFormData>({
+    patientName: "",
+    bloodGroup: "",
+    requiredUnits: "",
+    urgencyLevel: "normal",
+    hospitalName: "",
+    location: "",
+    contactNumber: "",
+  });
+
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
+  const bloodGroups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!formData.patientName || !formData.bloodGroup || !formData.requiredUnits || 
+        !formData.hospitalName || !formData.location || !formData.contactNumber) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // Check if documents are uploaded
+    if (uploadedFiles.length === 0) {
+      toast.error("Please upload at least one medical document");
+      return;
+    }
+
+    // Show success message
+    if (formData.urgencyLevel === "emergency") {
+      toast.success("Emergency blood request submitted successfully! We'll notify donors immediately.", {
+        duration: 5000,
+      });
+    } else {
+      toast.success("Blood request submitted successfully!", {
+        duration: 4000,
+      });
+    }
+
+    // Log form data (in real app, this would be sent to backend)
+    console.log("Blood Request Submitted:", formData);
+    console.log("Uploaded Documents:", uploadedFiles.map(f => f.name));
+    
+    // Reset form
+    setFormData({
+      patientName: "",
+      bloodGroup: "",
+      requiredUnits: "",
+      urgencyLevel: "normal",
+      hospitalName: "",
+      location: "",
+      contactNumber: "",
+    });
+    setUploadedFiles([]);
+  };
+
+  const handleInputChange = (field: keyof PatientFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      setUploadedFiles(Array.from(files));
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    const newFiles = uploadedFiles.filter((_, i) => i !== index);
+    setUploadedFiles(newFiles);
+  };
+
+  return (
+    <div className="w-full min-h-screen bg-gradient-to-b from-red-50 to-white p-4 sm:p-6">
+      <div className="max-w-md mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Droplet className="w-10 h-10 text-red-600 fill-red-600" />
+            <h1 className="text-3xl text-red-600">HomoAid</h1>
+          </div>
+          <p className="text-gray-600">Emergency Blood Request System</p>
+        </div>
+
+        {/* Form Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border-2 border-red-100">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Patient Name */}
+            <div className="space-y-2">
+              <Label htmlFor="patientName" className="text-base flex items-center gap-2">
+                <User className="w-4 h-4 text-red-600" />
+                Patient Name
+              </Label>
+              <Input
+                id="patientName"
+                type="text"
+                value={formData.patientName}
+                onChange={(e) => handleInputChange("patientName", e.target.value)}
+                placeholder="Enter patient's full name"
+                className="h-12 text-base border-gray-300 focus:border-red-500 focus:ring-red-500"
+                required
+              />
+            </div>
+
+            {/* Blood Group */}
+            <div className="space-y-2">
+              <Label htmlFor="bloodGroup" className="text-base flex items-center gap-2">
+                <Droplet className="w-4 h-4 text-red-600" />
+                Blood Group
+              </Label>
+              <Select value={formData.bloodGroup} onValueChange={(value) => handleInputChange("bloodGroup", value)}>
+                <SelectTrigger className="h-12 text-base border-gray-300 focus:border-red-500 focus:ring-red-500">
+                  <SelectValue placeholder="Select blood group" />
+                </SelectTrigger>
+                <SelectContent>
+                  {bloodGroups.map((group) => (
+                    <SelectItem key={group} value={group} className="text-base">
+                      {group}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Required Units */}
+            <div className="space-y-2">
+              <Label htmlFor="requiredUnits" className="text-base">
+                Required Units of Blood
+              </Label>
+              <Input
+                id="requiredUnits"
+                type="number"
+                min="1"
+                value={formData.requiredUnits}
+                onChange={(e) => handleInputChange("requiredUnits", e.target.value)}
+                placeholder="Enter number of units"
+                className="h-12 text-base border-gray-300 focus:border-red-500 focus:ring-red-500"
+                required
+              />
+            </div>
+
+            {/* Urgency Level */}
+            <div className="space-y-3">
+              <Label className="text-base flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600" />
+                Urgency Level
+              </Label>
+              <RadioGroup
+                value={formData.urgencyLevel}
+                onValueChange={(value) => handleInputChange("urgencyLevel", value)}
+                className="flex gap-4"
+              >
+                <div className="flex items-center space-x-2 flex-1">
+                  <RadioGroupItem value="normal" id="normal" className="border-gray-400" />
+                  <Label htmlFor="normal" className="text-base cursor-pointer">
+                    Normal
+                  </Label>
+                </div>
+                <div className={`flex items-center space-x-2 flex-1 p-3 rounded-lg border-2 transition-all ${
+                  formData.urgencyLevel === "emergency" 
+                    ? "border-red-500 bg-red-50" 
+                    : "border-transparent"
+                }`}>
+                  <RadioGroupItem value="emergency" id="emergency" className="border-red-500" />
+                  <Label htmlFor="emergency" className="text-base cursor-pointer text-red-700">
+                    Emergency
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Hospital Name */}
+            <div className="space-y-2">
+              <Label htmlFor="hospitalName" className="text-base flex items-center gap-2">
+                <Hospital className="w-4 h-4 text-red-600" />
+                Hospital Name
+              </Label>
+              <Input
+                id="hospitalName"
+                type="text"
+                value={formData.hospitalName}
+                onChange={(e) => handleInputChange("hospitalName", e.target.value)}
+                placeholder="Enter hospital name"
+                className="h-12 text-base border-gray-300 focus:border-red-500 focus:ring-red-500"
+                required
+              />
+            </div>
+
+            {/* Location */}
+            <div className="space-y-2">
+              <Label htmlFor="location" className="text-base flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-red-600" />
+                Location
+              </Label>
+              <Input
+                id="location"
+                type="text"
+                value={formData.location}
+                onChange={(e) => handleInputChange("location", e.target.value)}
+                placeholder="Enter city or area"
+                className="h-12 text-base border-gray-300 focus:border-red-500 focus:ring-red-500"
+                required
+              />
+            </div>
+
+            {/* Contact Number */}
+            <div className="space-y-2">
+              <Label htmlFor="contactNumber" className="text-base flex items-center gap-2">
+                <Phone className="w-4 h-4 text-red-600" />
+                Contact Number
+              </Label>
+              <Input
+                id="contactNumber"
+                type="tel"
+                value={formData.contactNumber}
+                onChange={(e) => handleInputChange("contactNumber", e.target.value)}
+                placeholder="Enter contact number"
+                className="h-12 text-base border-gray-300 focus:border-red-500 focus:ring-red-500"
+                required
+              />
+            </div>
+
+            {/* Upload Files */}
+            <div className="space-y-2">
+              <Label htmlFor="files" className="text-base flex items-center gap-2">
+                <FileText className="w-4 h-4 text-red-600" />
+                Upload Documents
+              </Label>
+              <Input
+                id="files"
+                type="file"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                onChange={handleFileChange}
+                className="h-12 text-base border-gray-300 focus:border-red-500 focus:ring-red-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+              />
+              <p className="text-xs text-gray-500">Upload medical reports, prescriptions, or doctor's notes (PDF, Images, DOC) - Required</p>
+              
+              {uploadedFiles.length > 0 && (
+                <div className="mt-3 space-y-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-700 mb-2">Uploaded Documents ({uploadedFiles.length}):</p>
+                  {uploadedFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between bg-white p-2 rounded border border-gray-200">
+                      <div className="flex items-center gap-2 flex-1">
+                        <FileText className="w-4 h-4 text-red-600 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                        <span className="text-xs text-gray-400">({(file.size / 1024).toFixed(1)} KB)</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveFile(index)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className={`w-full h-14 text-lg transition-all ${
+                formData.urgencyLevel === "emergency"
+                  ? "bg-red-600 hover:bg-red-700 animate-pulse"
+                  : "bg-red-600 hover:bg-red-700"
+              }`}
+            >
+              {formData.urgencyLevel === "emergency" ? "🚨 Submit Emergency Request" : "Submit Blood Request"}
+            </Button>
+          </form>
+        </div>
+
+        {/* Footer Info */}
+        <div className="mt-6 text-center text-sm text-gray-500">
+          <p>Your request will be shared with verified donors in your area</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 }
 
 
