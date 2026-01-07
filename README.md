@@ -901,5 +901,49 @@ export function PatientDetailsForm() {
   );
 }
 }
+///code for the location sharing of the patient
+import { useState } from "react";
+import { PatientDetailsForm } from "./components/PatientDetailsForm";
+import { LocationDetails } from "./components/LocationDetails";
+import { Toaster } from "./components/ui/sonner";
+
+export default function App() {
+  const [activeScreen, setActiveScreen] = useState<"patient" | "location">("patient");
+
+  return (
+    <>
+      {/* Navigation Tabs */}
+      <div className="sticky top-0 z-10 bg-white border-b-2 border-red-100 shadow-sm">
+        <div className="max-w-md mx-auto flex">
+          <button
+            onClick={() => setActiveScreen("patient")}
+            className={`flex-1 py-4 text-base font-medium transition-all ${
+              activeScreen === "patient"
+                ? "text-red-600 border-b-4 border-red-600 bg-red-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            Patient Details
+          </button>
+          <button
+            onClick={() => setActiveScreen("location")}
+            className={`flex-1 py-4 text-base font-medium transition-all ${
+              activeScreen === "location"
+                ? "text-red-600 border-b-4 border-red-600 bg-red-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            Location Details
+          </button>
+        </div>
+      </div>
+
+      {/* Screen Content */}
+      {activeScreen === "patient" ? <PatientDetailsForm /> : <LocationDetails />}
+      
+      <Toaster position="top-center" />
+    </>
+  );
+}
 
 
