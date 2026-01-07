@@ -479,5 +479,16 @@ VITE_GOOGLE_MAPS_API_KEY=your-maps-api-key
 *"Helping humans help humans - because every drop counts."*
 
 **Homoaid** - Making blood donation accessible, instant, and life-saving through technology.
+//patient details
+import { PatientDetailsForm } from "./components/PatientDetailsForm";
+import { Toaster } from "./components/ui/sonner";
 
+export default function App() {
+  return (
+    <>
+      <PatientDetailsForm />
+      <Toaster position="top-center" />
+    </>
+  );
+}
 
