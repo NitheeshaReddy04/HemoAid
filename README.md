@@ -22,8 +22,8 @@ HemoAid enables hospitals to send verified emergency blood requests to nearby do
 - Maps & Location: Google Maps API
 
 ## MVP
-- Figma Prototype: 
-- Demo Video:
+- Figma Prototype: https://pogo-heap-18466778.figma.site
+- Demo Video:https://www.loom.com/share/32732887f08b4ee79e275e9e21dfa013
 
 
   ROUND - 2 # HemoAid
